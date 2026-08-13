@@ -1,0 +1,77 @@
+/**
+ * For more details on how to configure Wrangler, refer to:
+ * https://developers.cloudflare.com/workers/wrangler/configuration/
+ */
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "cf-worker-email",
+	"main": "src/index.ts",
+	"compatibility_date": "2025-03-21",
+	"observability": {
+		"enabled": true
+	},
+	"send_email": [
+		{
+			// Delivers to a verified destination on a domain I own, which then
+			// forwards to the real inbox through Email Routing. That keeps a
+			// personal address out of this file, which has to be published for
+			// the repo to be publishable -- destination_address is binding
+			// config, so unlike the sender and recipient vars it cannot be a
+			// secret.
+			"name": "CONTACT_INBOX",
+			// Optional, but dropping it would let this Worker mail any address
+			// verified on the account, so it stays.
+			"destination_address": "contact@wearn.dev"
+		}
+	],
+
+	// Public information: the origins allowed to post here. The sender and
+	// recipient addresses are deliberately not vars -- they are secrets, set
+	// with `wrangler secret put`, so they never appear in this file.
+	"vars": {
+		"ALLOWED_ORIGINS": "https://jacksonwearn.com,https://www.jacksonwearn.com"
+	},
+	"unsafe": {
+		"bindings": [
+			{
+				"name": "RATE_LIMITER",
+				"type": "ratelimit",
+				"namespace_id": "1001",
+				"simple": {
+					"limit": 50,
+					"period": 60
+				}
+			}
+		]
+	},
+	/**
+	 * Smart Placement
+	 * Docs: https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement
+	 */
+	// "placement": { "mode": "smart" },
+	/**
+	 * Bindings
+	 * Bindings allow your Worker to interact with resources on the Cloudflare Developer Platform, including
+	 * databases, object storage, AI inference, real-time communication and more.
+	 * https://developers.cloudflare.com/workers/runtime-apis/bindings/
+	 */
+	/**
+	 * Environment Variables
+	 * https://developers.cloudflare.com/workers/wrangler/configuration/#environment-variables
+	 */
+	// "vars": { "MY_VARIABLE": "production_value" },
+	/**
+	 * Note: Use secrets to store sensitive data.
+	 * https://developers.cloudflare.com/workers/configuration/secrets/
+	 */
+	/**
+	 * Static Assets
+	 * https://developers.cloudflare.com/workers/static-assets/binding/
+	 */
+	// "assets": { "directory": "./public/", "binding": "ASSETS" },
+	/**
+	 * Service Bindings (communicate between multiple Workers)
+	 * https://developers.cloudflare.com/workers/wrangler/configuration/#service-bindings
+	 */
+	// "services": [{ "binding": "MY_SERVICE", "service": "my-service" }]
+}

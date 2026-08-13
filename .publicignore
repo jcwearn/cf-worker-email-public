@@ -1,0 +1,25 @@
+# rsync exclude patterns for the public snapshot.
+#
+# actions/checkout only materializes tracked files, so anything already in
+# .gitignore will not be present anyway. Listing those paths here regardless is
+# deliberate: it makes the filter correct when run locally against a dirty
+# working tree, and it survives a file being accidentally committed later.
+#
+# Patterns are rsync filter rules, not gitignore rules. A trailing / matches
+# directories only; a leading / anchors to the repo root.
+
+# Never publish VCS or CI-local state
+.git/
+.github/public-README.md
+
+# Agent / editor state
+.claude/
+.vscode/
+.idea/
+.DS_Store
+
+# Local Wrangler state and secrets. .dev.vars holds the values that are set
+# with `wrangler secret put` in production, so it must never be published.
+.dev.vars
+.dev.vars.*
+.wrangler/
