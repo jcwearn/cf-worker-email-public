@@ -16,7 +16,13 @@ jobs:
       # github-actions[bot]; the committer is what GitHub verifies against, so
       # this must be an email tied to the account owning PUBLIC_SYNC_SIGNING_KEY.
       signer-name: Jackson Wearn
-      signer-email: 2472105+jcwearn@users.noreply.github.com
+      # Matches the address my own commits are authored with, so GitHub
+      # renders them as one name rather than "X authored and X committed" --
+      # it only collapses the two when they are byte-identical, and
+      # 2472105+jcwearn@ and jcwearn@ resolve to the same account but are not
+      # the same string. Renovate's commits still show the bot and me, which
+      # is correct: it wrote them, I signed them.
+      signer-email: jcwearn@users.noreply.github.com
     secrets:
       DEPLOY_KEY: ${{ secrets.PUBLIC_SYNC_DEPLOY_KEY }}
       SIGNING_KEY: ${{ secrets.PUBLIC_SYNC_SIGNING_KEY }}
