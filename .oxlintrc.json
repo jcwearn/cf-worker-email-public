@@ -1,5 +1,28 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
+
+  // oxlint's default is `correctness` at WARN, and warnings do not affect the
+  // exit code -- so before this block, `npm run lint` was green no matter what
+  // it printed. cf-worker-email shipped an unused catch binding that way.
+  //
+  // Everything here is `error` or `off`, never `warn`. A rule nobody will act
+  // on is noise, and noise is what hid that finding.
+  //
+  // Not enabled: `pedantic` (its top rules here are no-inline-comments and
+  // max-lines-per-function, which fight the house commenting style), plus
+  // `perf`, `style`, `restriction` and `nursery`.
+  "categories": {
+    "correctness": "error",
+    "suspicious": "error"
+  },
+
+  // NOTE: `plugins` REPLACES oxlint's base set rather than adding to it, so
+  // this list silently drops `unicorn`, which is on by default. That is
+  // currently deliberate: restoring it adds 145 findings across the fleet,
+  // 93 of them unicorn(no-array-sort) wanting .toSorted() instead of .sort().
+  // That is a behavioural change to mutation semantics and belongs in its own
+  // PR, not in a change about severity.
   "plugins": ["typescript", "oxc"],
+
   "ignorePatterns": ["worker-configuration.d.ts", ".wrangler"]
 }
