@@ -18,10 +18,10 @@ name: CI
 #                and resolves every binding without uploading or needing
 #                credentials. It is the only check that can catch a
 #                wrangler.jsonc that no longer parses.
-#   test      -> `vitest run --passWithNoTests`. There are no tests yet; the
-#                suite was removed in b536424 when vitest-pool-workers did not
-#                support vitest 4.x. That blocker has cleared, so this is a
-#                stub with a real follow-up rather than a permanent state.
+#   test      -> `vitest run` against src/index.test.ts. --passWithNoTests is
+#                gone: with real tests present it would green a suite that had
+#                stopped being collected, which is the failure it was there to
+#                make visible, inverted.
 
 on:
   push:
