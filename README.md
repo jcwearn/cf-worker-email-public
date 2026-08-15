@@ -20,8 +20,8 @@ Content-Type: application/json
 { "name": "...", "email": "...", "message": "..." }
 ```
 
-| Response | Meaning                                                          |
-| -------- | ---------------------------------------------------------------- |
+| Response | Meaning                                                           |
+| -------- | ----------------------------------------------------------------- |
 | `200`    | Sent                                                              |
 | `400`    | Not JSON, a field is missing, or the email address does not parse |
 | `403`    | `Origin` header present and not in `ALLOWED_ORIGINS`              |

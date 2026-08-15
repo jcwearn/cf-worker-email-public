@@ -1,0 +1,42 @@
+name: CI
+
+# The first CI this repo has ever had. Nothing has verified a change here
+# before now -- no lint, no typecheck, no build has run on a PR or on main, and
+# `git log --all -- .github/workflows` shows none was ever deleted either.
+# Deploys are manual (`npm run deploy` from a laptop), so until this file a
+# broken wrangler.jsonc or an unresolvable binding reached production with
+# nothing in between.
+#
+# Calls the shared Node CI workflow so this repo runs the same six steps, in
+# the same order, as the five siblings. publish.yaml already consumes
+# jcwearn/workflows, so this is not first contact with the convention.
+#
+# The contract it relies on is satisfied here: .node-version is pinned exact,
+# package-lock.json is committed, and package.json declares all five scripts.
+# Two are worth knowing about:
+#   build     -> `wrangler deploy --dry-run`, which runs the real esbuild bundle
+#                and resolves every binding without uploading or needing
+#                credentials. It is the only check that can catch a
+#                wrangler.jsonc that no longer parses.
+#   test      -> `vitest run --passWithNoTests`. There are no tests yet; the
+#                suite was removed in b536424 when vitest-pool-workers did not
+#                support vitest 4.x. That blocker has cleared, so this is a
+#                stub with a real follow-up rather than a permanent state.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  ci:
+    # Explicit even though `read` is all node-ci needs and all this account
+    # grants by default. A reusable workflow can only narrow what the caller
+    # granted, so the grant belongs here where it is visible.
+    permissions:
+      contents: read
+    # Renovate pins this to a digest on its next run, leaving `# v1` behind as
+    # the record of what to follow. Written as `@v1` with no trailing comment;
+    # the comment belongs on a digest, where it records which tag it came from.
+    uses: jcwearn/workflows/.github/workflows/node-ci.yaml@v1
