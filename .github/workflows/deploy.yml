@@ -1,0 +1,62 @@
+name: Deploy
+
+# Deploys this Worker with the repo's own scoped API token, replacing
+# Cloudflare's Workers Builds Git integration -- which authenticates through a
+# single account-level GitHub App shared by every repo and cannot be split per
+# app.
+#
+# A local workflow rather than a shared one, following the same rule
+# jcwearn/workflows applies to node-ci: a shared workflow describes what EVERY
+# repo of its kind does, and there are exactly two Workers here that differ
+# substantially -- hivemind builds and pushes a container image, this one does
+# not. Extracting a shared Worker-deploy workflow makes sense once both have
+# been migrated and the common part is known, not before.
+#
+# Only on main. Unlike Pages there are no preview URLs for a plain Worker, so a
+# branch deploy would either overwrite production or need versions/gradual
+# rollout -- neither of which this Worker's traffic justifies.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  # Never cancel a production deploy: a cancelled one leaves the previous
+  # version live behind a green check.
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy the Worker
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version-file: '.node-version'
+          cache: 'npm'
+
+      - run: npm ci
+
+      # `deploy`, not `versions upload`. This Worker has no gradual-rollout
+      # setup, and versions upload would leave the running version untouched --
+      # a deploy that reports success and changes nothing.
+      #
+      # Secrets (SENDER_ADDRESS, RECIPIENT_ADDRESS) are NOT set here. They are
+      # set once with `wrangler secret put` and persist across deploys; passing
+      # them through CI would put them in another place they do not need to be.
+      - uses: cloudflare/wrangler-action@9acf94ace14e7dc412b076f2c5c20b8ce93c79cd # v3.15.0
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy

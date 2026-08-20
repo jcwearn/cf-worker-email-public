@@ -10,6 +10,23 @@
   "observability": {
     "enabled": true,
   },
+
+  // No *.workers.dev hostname.
+  //
+  // Without this the Worker answers on
+  // cf-worker-email.jacksonwearn.workers.dev as readily as on its real route --
+  // verified 2026-08-19, both returned an identical response to the same
+  // request. That is a second, unadvertised front door with the same ability to
+  // send mail.
+  //
+  // It also sits OUTSIDE the jacksonwearn.com zone, so no WAF or rate-limiting
+  // rule on that zone can see it. The origin check and the RATE_LIMITER binding
+  // below are real, but they are the only things in front of it, and any zone
+  // rule added later would simply not apply.
+  //
+  // The route is unaffected: jacksonwearn.com/form-submit is a zone route and
+  // is what ContactForm.tsx posts to.
+  "workers_dev": false,
   "send_email": [
     {
       // Delivers to a verified destination on a domain I own, which then
