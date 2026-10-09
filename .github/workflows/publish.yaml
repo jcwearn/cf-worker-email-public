@@ -8,7 +8,7 @@ on:
 
 jobs:
   publish:
-    uses: jcwearn/workflows/.github/workflows/public-sync.yaml@5a87eda65ecf9ee48da24b1d2d8c5ac53c335aed # v1
+    uses: jcwearn/workflows/.github/workflows/public-sync.yaml@5a87eda65ecf9ee48da24b1d2d8c5ac53c335aed # v1.8.4
     with:
       target-repo: jcwearn/cf-worker-email-public
       readme-override: .github/public-README.md
